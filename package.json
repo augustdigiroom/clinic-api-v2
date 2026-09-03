@@ -1,6 +1,7 @@
 {
   "name": "clinic-api-v2",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -26,9 +27,11 @@
     "typescript": "^7.0.2"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "pg": "^8.23.0",
     "zod": "^4.5.4"
   }
 }

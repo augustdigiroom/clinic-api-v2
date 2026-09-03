@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -10,4 +5,27 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+model doctors {
+  id             Int        @id @default(autoincrement())
+  first_name     String     @db.VarChar(100)
+  last_name      String     @db.VarChar(100)
+  specialization String     @db.VarChar(100)
+  patients       patients[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model patients {
+  id             Int      @id @default(autoincrement())
+  first_name     String   @db.VarChar(100)
+  last_name      String   @db.VarChar(100)
+  age            Int?
+  gender         String?  @db.VarChar(20)
+  diagnosis      String?
+  contact_number String?  @unique(map: "unique_patient_contact") @db.VarChar(30)
+  doctor_id      Int?
+  doctors        doctors? @relation(fields: [doctor_id], references: [id], onUpdate: NoAction, map: "fk_patient_doctor")
+
+  @@index([last_name], map: "idx_patients_last_name")
 }
