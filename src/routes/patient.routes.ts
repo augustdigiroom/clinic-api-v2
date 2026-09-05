@@ -4,5 +4,6 @@ import { Router } from "express";
 const router = Router();
 
 router.get("/", getPatients);
+router.get("/:id", getPatientProfile);
 
 export default router;
