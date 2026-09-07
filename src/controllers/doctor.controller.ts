@@ -22,6 +22,9 @@ export const getDoctorProfile = async (req: Request, res: Response) => {
       where: {
         id: id,
       },
+      include: {
+        patients: true,
+      },
     });
 
     if (doctors === null) {
