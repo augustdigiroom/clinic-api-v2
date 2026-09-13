@@ -118,3 +118,51 @@ export const deleteAppointment = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getAppointmentsByDoctor = async (req: Request, res: Response) => {
+  try {
+    const doctorId = Number(req.params.doctorId);
+
+    const appointments = await prisma.appointments.findMany({
+      where: {
+        doctor_id: doctorId,
+      },
+      include: {
+        patient: true,
+        doctors: true,
+      },
+    });
+
+    res.json(appointments);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export const getAppointmentsByPatient = async (req: Request, res: Response) => {
+  try {
+    const patientId = Number(req.params.patientId);
+
+    const appointments = await prisma.appointments.findMany({
+      where: {
+        patient_id: patientId,
+      },
+      include: {
+        patient: true,
+        doctors: true,
+      },
+    });
+
+    res.json(appointments);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
