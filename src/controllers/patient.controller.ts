@@ -13,9 +13,11 @@ export const getPatients = async (req: Request, res: Response) => {
     const maxAgeQuery = req.query.maxAge;
     const searchQuery = req.query.search;
 
-    // Sorting query parameters
+    // Sorting and pagination query parameters
     const sortByQuery = req.query.sortBy;
     const orderQuery = req.query.order;
+    const pageQuery = req.query.page;
+    const limitQuery = req.query.limit;
 
     // Validate gender
     if (
@@ -27,7 +29,7 @@ export const getPatients = async (req: Request, res: Response) => {
       });
     }
 
-    // Validate search query
+    // Validate search
     if (searchQuery !== undefined && typeof searchQuery !== "string") {
       return res.status(400).json({
         message: "search must be a string",
@@ -120,21 +122,85 @@ export const getPatients = async (req: Request, res: Response) => {
     const order: "asc" | "desc" =
       typeof orderQuery === "string" ? (orderQuery as "asc" | "desc") : "asc";
 
-    // Fetch patients with filters, search, and sorting
-    const patients = await prisma.patients.findMany({
-      where: buildPatientWhere({
-        gender,
-        minAge,
-        maxAge,
-        search,
-      }),
-      orderBy: buildPatientOrderBy(sortBy, order),
-      include: {
-        doctors: true,
-      },
+    // Validate page
+    let page = 1;
+
+    if (pageQuery !== undefined) {
+      if (typeof pageQuery !== "string" || pageQuery.trim() === "") {
+        return res.status(400).json({
+          message: "page must be a positive integer",
+        });
+      }
+
+      page = Number(pageQuery);
+
+      if (!Number.isInteger(page) || page < 1) {
+        return res.status(400).json({
+          message: "page must be a positive integer",
+        });
+      }
+    }
+
+    // Validate limit
+    let limit = 10;
+
+    if (limitQuery !== undefined) {
+      if (typeof limitQuery !== "string" || limitQuery.trim() === "") {
+        return res.status(400).json({
+          message: "limit must be a positive integer",
+        });
+      }
+
+      limit = Number(limitQuery);
+
+      if (!Number.isInteger(limit) || limit < 1) {
+        return res.status(400).json({
+          message: "limit must be a positive integer",
+        });
+      }
+    }
+
+    // Calculate pagination offset
+    const skip = (page - 1) * limit;
+
+    // Build the shared filters once
+    const where = buildPatientWhere({
+      gender,
+      minAge,
+      maxAge,
+      search,
     });
 
-    return res.json(patients);
+    // Fetch patients and count matching records
+    const [patients, totalRecords] = await Promise.all([
+      prisma.patients.findMany({
+        where,
+        orderBy: buildPatientOrderBy(sortBy, order),
+        skip,
+        take: limit,
+        include: {
+          doctors: true,
+        },
+      }),
+
+      prisma.patients.count({
+        where,
+      }),
+    ]);
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalRecords / limit);
+
+    // Return patients and pagination metadata
+    return res.json({
+      data: patients,
+      pagination: {
+        page,
+        limit,
+        totalRecords,
+        totalPages,
+      },
+    });
   } catch (error) {
     console.error(error);
 
