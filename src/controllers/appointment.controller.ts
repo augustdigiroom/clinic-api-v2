@@ -1,6 +1,7 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import type { Request, Response } from "express";
+import { z } from "zod";
 import {
   buildAppointmentOrderBy,
   buildAppointmentWhere,
@@ -218,15 +219,70 @@ export const getAppointment = async (req: Request, res: Response) => {
 
 export const createAppointment = async (req: Request, res: Response) => {
   try {
+    const appointmentSchema = z
+      .object({
+        patient_id: z.number().int().positive(),
+
+        doctor_id: z.number().int().positive().nullable().optional(),
+
+        appointment_date: z
+          .string()
+          .refine(
+            (value) =>
+              value.trim().length > 0 && !Number.isNaN(Date.parse(value)),
+            {
+              message: "appointment_date must be a valid date",
+            },
+          ),
+
+        reason: z.string().trim().min(1).max(100),
+
+        status: z.string().trim().min(1).max(20),
+      })
+      .strict();
+
+    const validation = appointmentSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validation.error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
+    const { patient_id, doctor_id, appointment_date, reason, status } =
+      validation.data;
+
     const appointment = await prisma.appointments.create({
-      data: req.body,
+      data: {
+        patient_id,
+        ...(doctor_id !== undefined ? { doctor_id } : {}),
+        appointment_date: new Date(appointment_date),
+        reason,
+        status,
+      },
+      include: {
+        patient: true,
+        doctors: true,
+      },
     });
 
-    res.status(201).json(appointment);
+    return res.status(201).json(appointment);
   } catch (error) {
     console.error(error);
 
-    res.status(500).json({
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") {
+        return res.status(400).json({
+          message: "Invalid patient_id or doctor_id reference",
+        });
+      }
+    }
+
+    return res.status(500).json({
       message: "Internal Server Error",
     });
   }
@@ -243,11 +299,63 @@ export const updateAppointment = async (req: Request, res: Response) => {
       });
     }
 
+    // Validate request body
+    const updateAppointmentSchema = z
+      .object({
+        patient_id: z.number().int().positive().optional(),
+
+        doctor_id: z.number().int().positive().nullable().optional(),
+
+        appointment_date: z
+          .string()
+          .refine(
+            (value) =>
+              value.trim().length > 0 && !Number.isNaN(Date.parse(value)),
+            {
+              message: "appointment_date must be a valid date",
+            },
+          )
+          .optional(),
+
+        reason: z.string().trim().min(1).max(100).optional(),
+
+        status: z.string().trim().min(1).max(20).optional(),
+      })
+      .strict()
+      .refine((data) => Object.keys(data).length > 0, {
+        message: "At least one field must be provided",
+      });
+
+    const validation = updateAppointmentSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        message: "Validation failed",
+        errors: validation.error.issues.map((issue) => ({
+          field: issue.path.join("."),
+          message: issue.message,
+        })),
+      });
+    }
+
+    const { patient_id, doctor_id, appointment_date, reason, status } =
+      validation.data;
+
     const appointment = await prisma.appointments.update({
-      where: {
-        id: id,
+      where: { id },
+      data: {
+        ...(patient_id !== undefined ? { patient_id } : {}),
+        ...(doctor_id !== undefined ? { doctor_id } : {}),
+        ...(appointment_date !== undefined
+          ? { appointment_date: new Date(appointment_date) }
+          : {}),
+        ...(reason !== undefined ? { reason } : {}),
+        ...(status !== undefined ? { status } : {}),
       },
-      data: req.body,
+      include: {
+        patient: true,
+        doctors: true,
+      },
     });
 
     return res.status(200).json(appointment);
@@ -258,6 +366,12 @@ export const updateAppointment = async (req: Request, res: Response) => {
       if (error.code === "P2025") {
         return res.status(404).json({
           message: "Appointment not found",
+        });
+      }
+
+      if (error.code === "P2003") {
+        return res.status(400).json({
+          message: "Invalid patient_id or doctor_id reference",
         });
       }
     }
