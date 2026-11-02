@@ -1,12 +1,16 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import {
   buildPatientOrderBy,
   buildPatientWhere,
 } from "../queries/patient.query.js";
 
-export const getPatients = async (req: Request, res: Response) => {
+export const getPatients = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const gender = req.query.gender;
     const minAgeQuery = req.query.minAge;
@@ -202,11 +206,7 @@ export const getPatients = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
@@ -266,8 +266,6 @@ export const updatePatient = async (req: Request, res: Response) => {
 
     res.status(200).json(patient);
   } catch (error) {
-    console.error(error);
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return res.status(404).json({
@@ -276,7 +274,9 @@ export const updatePatient = async (req: Request, res: Response) => {
       }
     }
 
-    res.status(500).json({
+    console.error(error);
+
+    return res.status(500).json({
       message: "Internal Server Error",
     });
   }
@@ -294,8 +294,6 @@ export const deletePatient = async (req: Request, res: Response) => {
 
     res.status(200).json(patient);
   } catch (error) {
-    console.error(error);
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return res.status(404).json({
@@ -304,7 +302,9 @@ export const deletePatient = async (req: Request, res: Response) => {
       }
     }
 
-    res.status(500).json({
+    console.error(error);
+
+    return res.status(500).json({
       message: "Internal Server Error",
     });
   }

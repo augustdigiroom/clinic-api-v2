@@ -206,8 +206,6 @@ export const updateDoctor = async (req: Request, res: Response) => {
 
     res.status(200).json(doctors);
   } catch (error) {
-    console.error(error);
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return res.status(404).json({
@@ -216,7 +214,9 @@ export const updateDoctor = async (req: Request, res: Response) => {
       }
     }
 
-    res.status(500).json({
+    console.error(error);
+
+    return res.status(500).json({
       message: "Internal Server Error",
     });
   }
@@ -234,8 +234,6 @@ export const deleteDoctor = async (req: Request, res: Response) => {
 
     res.status(200).json(doctors);
   } catch (error) {
-    console.error(error);
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return res.status(404).json({
@@ -244,7 +242,9 @@ export const deleteDoctor = async (req: Request, res: Response) => {
       }
     }
 
-    res.status(500).json({
+    console.error(error);
+
+    return res.status(500).json({
       message: "Internal Server Error",
     });
   }
