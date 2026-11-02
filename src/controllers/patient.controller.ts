@@ -210,7 +210,11 @@ export const getPatients = async (
   }
 };
 
-export const getPatientProfile = async (req: Request, res: Response) => {
+export const getPatientProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -231,13 +235,15 @@ export const getPatientProfile = async (req: Request, res: Response) => {
 
     res.json(patient);
   } catch (error) {
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const createPatient = async (req: Request, res: Response) => {
+export const createPatient = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const patient = await prisma.patients.create({
       data: req.body,
@@ -245,15 +251,15 @@ export const createPatient = async (req: Request, res: Response) => {
 
     res.status(201).json(patient);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const updatePatient = async (req: Request, res: Response) => {
+export const updatePatient = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -273,16 +279,15 @@ export const updatePatient = async (req: Request, res: Response) => {
         });
       }
     }
-
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const deletePatient = async (req: Request, res: Response) => {
+export const deletePatient = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -301,11 +306,6 @@ export const deletePatient = async (req: Request, res: Response) => {
         });
       }
     }
-
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
