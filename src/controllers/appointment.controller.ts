@@ -1,13 +1,17 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 import {
   buildAppointmentOrderBy,
   buildAppointmentWhere,
 } from "../queries/appointment.query.js";
 
-export const getAppointments = async (req: Request, res: Response) => {
+export const getAppointments = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const statusQuery = req.query.status;
     const patientIdQuery = req.query.patientId;
@@ -172,15 +176,15 @@ export const getAppointments = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const getAppointment = async (req: Request, res: Response) => {
+export const getAppointment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -209,15 +213,15 @@ export const getAppointment = async (req: Request, res: Response) => {
 
     return res.json(appointment);
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const createAppointment = async (req: Request, res: Response) => {
+export const createAppointment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const appointmentSchema = z
       .object({
@@ -272,8 +276,6 @@ export const createAppointment = async (req: Request, res: Response) => {
 
     return res.status(201).json(appointment);
   } catch (error) {
-    console.error(error);
-
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2003") {
         return res.status(400).json({
@@ -282,13 +284,15 @@ export const createAppointment = async (req: Request, res: Response) => {
       }
     }
 
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const updateAppointment = async (req: Request, res: Response) => {
+export const updateAppointment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -374,15 +378,15 @@ export const updateAppointment = async (req: Request, res: Response) => {
       }
     }
 
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const deleteAppointment = async (req: Request, res: Response) => {
+export const deleteAppointment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -409,15 +413,15 @@ export const deleteAppointment = async (req: Request, res: Response) => {
       }
     }
 
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const getAppointmentsByDoctor = async (req: Request, res: Response) => {
+export const getAppointmentsByDoctor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const doctorId = Number(req.params.doctorId);
 
@@ -433,15 +437,15 @@ export const getAppointmentsByDoctor = async (req: Request, res: Response) => {
 
     res.json(appointments);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const getAppointmentsByPatient = async (req: Request, res: Response) => {
+export const getAppointmentsByPatient = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const patientId = Number(req.params.patientId);
 
@@ -457,10 +461,6 @@ export const getAppointmentsByPatient = async (req: Request, res: Response) => {
 
     res.json(appointments);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };

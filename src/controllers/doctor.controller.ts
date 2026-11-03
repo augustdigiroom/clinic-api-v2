@@ -1,12 +1,16 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 import {
   buildDoctorOrderBy,
   buildDoctorWhere,
 } from "../queries/doctor.query.js";
 
-export const getDoctors = async (req: Request, res: Response) => {
+export const getDoctors = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const specializationQuery = req.query.specialization;
     const searchQuery = req.query.search;
@@ -142,15 +146,15 @@ export const getDoctors = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const getDoctorProfile = async (req: Request, res: Response) => {
+export const getDoctorProfile = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -171,13 +175,15 @@ export const getDoctorProfile = async (req: Request, res: Response) => {
 
     res.json(doctors);
   } catch (error) {
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const createDoctor = async (req: Request, res: Response) => {
+export const createDoctor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const doctors = await prisma.doctors.create({
       data: req.body,
@@ -185,15 +191,15 @@ export const createDoctor = async (req: Request, res: Response) => {
 
     res.status(201).json(doctors);
   } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const updateDoctor = async (req: Request, res: Response) => {
+export const updateDoctor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -213,16 +219,15 @@ export const updateDoctor = async (req: Request, res: Response) => {
         });
       }
     }
-
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
 
-export const deleteDoctor = async (req: Request, res: Response) => {
+export const deleteDoctor = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     const id = Number(req.params.id);
 
@@ -241,11 +246,6 @@ export const deleteDoctor = async (req: Request, res: Response) => {
         });
       }
     }
-
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return next(error);
   }
 };
