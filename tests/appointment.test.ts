@@ -133,55 +133,93 @@ describe("POST /api/appointments validation", () => {
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Validation failed");
   });
-});
 
-it("should reject an invalid appointment_date", async () => {
-  const response = await request(app).post("/api/appointments").send({
-    patient_id: 2,
-    reason: "Initial consultation",
-    status: "SCHEDULED",
-    appointment_date: "invalid-date",
-  });
-
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe("Validation failed");
-});
-
-it("should reject an empty reason", async () => {
-  const response = await request(app).post("/api/appointments").send({
-    patient_id: 2,
-    reason: "   ",
-    status: "SCHEDULED",
-    appointment_date: "2026-11-01T09:00:00.000Z",
-  });
-
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe("Validation failed");
-});
-
-it("should reject a reason longer than 100 characters", async () => {
-  const response = await request(app)
-    .post("/api/appointments")
-    .send({
+  it("should reject an empty status", async () => {
+    const response = await request(app).post("/api/appointments").send({
       patient_id: 2,
-      reason: "A".repeat(101),
+      reason: "Initial consultation",
+      status: "   ",
+      appointment_date: "2026-11-01T09:00:00.000Z",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject a status longer than 20 characters", async () => {
+    const response = await request(app)
+      .post("/api/appointments")
+      .send({
+        patient_id: 2,
+        reason: "Initial consultation",
+        status: "A".repeat(21),
+        appointment_date: "2026-11-01T09:00:00.000Z",
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject a non-string status", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patient_id: 2,
+      reason: "Initial consultation",
+      status: 123,
+      appointment_date: "2026-11-01T09:00:00.000Z",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject an invalid appointment_date", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patient_id: 2,
+      reason: "Initial consultation",
+      status: "SCHEDULED",
+      appointment_date: "invalid-date",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject an empty reason", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patient_id: 2,
+      reason: "   ",
       status: "SCHEDULED",
       appointment_date: "2026-11-01T09:00:00.000Z",
     });
 
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe("Validation failed");
-});
-
-it("should reject a missing status", async () => {
-  const response = await request(app).post("/api/appointments").send({
-    patient_id: 2,
-    reason: "Initial consultation",
-    appointment_date: "2026-11-01T09:00:00.000Z",
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
   });
 
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe("Validation failed");
+  it("should reject a reason longer than 100 characters", async () => {
+    const response = await request(app)
+      .post("/api/appointments")
+      .send({
+        patient_id: 2,
+        reason: "A".repeat(101),
+        status: "SCHEDULED",
+        appointment_date: "2026-11-01T09:00:00.000Z",
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject a missing status", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patient_id: 2,
+      reason: "Initial consultation",
+      appointment_date: "2026-11-01T09:00:00.000Z",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
 });
 
 describe("POST /api/appointments success", () => {
