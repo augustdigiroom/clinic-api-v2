@@ -222,6 +222,38 @@ describe("POST /api/appointments validation", () => {
   });
 });
 
+describe("POST /api/appointments foreign key validation", () => {
+  it("should reject a nonexistent patient_id", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patient_id: 999999,
+      doctor_id: null,
+      appointment_date: "2026-11-01T09:00:00.000Z",
+      reason: "Foreign key testing",
+      status: "SCHEDULED",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Invalid patient_id or doctor_id reference",
+    );
+  });
+
+  it("should reject a nonexistent doctor_id", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patient_id: 1,
+      doctor_id: 999999,
+      appointment_date: "2026-11-01T09:00:00.000Z",
+      reason: "Foreign key testing",
+      status: "SCHEDULED",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Invalid patient_id or doctor_id reference",
+    );
+  });
+});
+
 describe("POST /api/appointments success", () => {
   it("should create a new appointment successfully", async () => {
     const response = await request(app).post("/api/appointments").send({
@@ -294,6 +326,30 @@ describe("PATCH /api/appointments/:id validation", () => {
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe("Validation failed");
+  });
+});
+
+describe("PATCH /api/appointments/:id foreign key validation", () => {
+  it("should reject a nonexistent patient_id", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({
+      patient_id: 999999,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Invalid patient_id or doctor_id reference",
+    );
+  });
+
+  it("should reject a nonexistent doctor_id", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({
+      doctor_id: 999999,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Invalid patient_id or doctor_id reference",
+    );
   });
 });
 
