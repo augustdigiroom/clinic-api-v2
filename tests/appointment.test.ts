@@ -240,6 +240,63 @@ describe("POST /api/appointments success", () => {
   });
 });
 
+describe("PATCH /api/appointments/:id validation", () => {
+  it("should reject an unknown field", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({
+      reason: "Updated consultation",
+      unknownField: "test",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject an invalid appointment_date", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({
+      appointment_date: "invalid-date",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject an empty status", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({
+      status: "   ",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject a non-string status", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({
+      status: 123,
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject a status longer than 20 characters", async () => {
+    const response = await request(app)
+      .patch("/api/appointments/10")
+      .send({
+        status: "A".repeat(21),
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+
+  it("should reject an empty update body", async () => {
+    const response = await request(app).patch("/api/appointments/10").send({});
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe("Validation failed");
+  });
+});
+
 describe("PATCH /api/appointments/:id", () => {
   it("should update an appointment successfully", async () => {
     const response = await request(app).patch("/api/appointments/10").send({
@@ -249,33 +306,26 @@ describe("PATCH /api/appointments/:id", () => {
     expect(response.status).toBe(200);
     expect(response.body.reason).toBe("Updated automated API testing");
   });
-});
 
-it("should reject an invalid appointment ID", async () => {
-  const response = await request(app).patch("/api/appointments/abc").send({
-    reason: "Updated consultation",
+  it("should reject an invalid appointment ID", async () => {
+    const response = await request(app).patch("/api/appointments/abc").send({
+      reason: "Updated consultation",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.message).toBe(
+      "Appointment ID must be a positive integer",
+    );
   });
 
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe(
-    "Appointment ID must be a positive integer",
-  );
-});
+  it("should return 404 for a nonexistent appointment", async () => {
+    const response = await request(app).patch("/api/appointments/999999").send({
+      reason: "Updated consultation",
+    });
 
-it("should reject an empty update body", async () => {
-  const response = await request(app).patch("/api/appointments/10").send({});
-
-  expect(response.status).toBe(400);
-  expect(response.body.message).toBe("Validation failed");
-});
-
-it("should return 404 for a nonexistent appointment", async () => {
-  const response = await request(app).patch("/api/appointments/999999").send({
-    reason: "Updated consultation",
+    expect(response.status).toBe(404);
+    expect(response.body.message).toBe("Appointment not found");
   });
-
-  expect(response.status).toBe(404);
-  expect(response.body.message).toBe("Appointment not found");
 });
 
 describe("DELETE /api/appointments/:id", () => {
@@ -294,25 +344,27 @@ describe("DELETE /api/appointments/:id", () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toBe("Appointment not found");
   });
-});
 
-it("should delete an appointment successfully", async () => {
-  const createdAppointment = await request(app).post("/api/appointments").send({
-    patient_id: 1,
-    doctor_id: null,
-    appointment_date: "2026-11-02T09:00:00.000Z",
-    reason: "Temporary deletion test",
-    status: "SCHEDULED",
+  it("should delete an appointment successfully", async () => {
+    const createdAppointment = await request(app)
+      .post("/api/appointments")
+      .send({
+        patient_id: 1,
+        doctor_id: null,
+        appointment_date: "2026-11-02T09:00:00.000Z",
+        reason: "Temporary deletion test",
+        status: "SCHEDULED",
+      });
+
+    expect(createdAppointment.status).toBe(201);
+
+    const appointmentId = createdAppointment.body.id;
+
+    const response = await request(app).delete(
+      `/api/appointments/${appointmentId}`,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("id", appointmentId);
   });
-
-  expect(createdAppointment.status).toBe(201);
-
-  const appointmentId = createdAppointment.body.id;
-
-  const response = await request(app).delete(
-    `/api/appointments/${appointmentId}`,
-  );
-
-  expect(response.status).toBe(200);
-  expect(response.body).toHaveProperty("id", appointmentId);
 });
