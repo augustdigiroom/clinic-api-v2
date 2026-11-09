@@ -1,6 +1,7 @@
 import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import type { NextFunction, Request, Response } from "express";
+import { createPatientSchema } from "../validations/patient.validation.js";
 import {
   buildPatientOrderBy,
   buildPatientWhere,
@@ -218,13 +219,15 @@ export const getPatientProfile = async (
   try {
     const id = Number(req.params.id);
 
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        message: "Patient ID must be a positive integer",
+      });
+    }
+
     const patient = await prisma.patients.findUnique({
-      where: {
-        id: id,
-      },
-      include: {
-        doctors: true,
-      },
+      where: { id },
+      include: { doctors: true },
     });
 
     if (patient === null) {
@@ -233,8 +236,9 @@ export const getPatientProfile = async (
       });
     }
 
-    res.json(patient);
+    return res.json(patient);
   } catch (error) {
+    console.error(`[GET /api/patients/${req.params.id}]`, error);
     return next(error);
   }
 };
@@ -245,12 +249,52 @@ export const createPatient = async (
   next: NextFunction,
 ) => {
   try {
+    // Validate request body using Zod
+    const validation = createPatientSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        message: "Invalid patient data",
+        errors: validation.error.issues,
+      });
+    }
+
+    // Extract validated patient fields
+    const {
+      first_name,
+      last_name,
+      age,
+      gender,
+      diagnosis,
+      contact_number,
+      doctor_id,
+    } = validation.data;
+
+    // Build Prisma create data
+    const patientData: Prisma.patientsUncheckedCreateInput = {
+      first_name,
+      last_name,
+      ...(age !== undefined ? { age } : {}),
+      ...(gender !== undefined ? { gender } : {}),
+      ...(diagnosis !== undefined ? { diagnosis } : {}),
+      ...(contact_number !== undefined ? { contact_number } : {}),
+      ...(doctor_id !== undefined ? { doctor_id } : {}),
+    };
+
     const patient = await prisma.patients.create({
-      data: req.body,
+      data: patientData,
     });
 
-    res.status(201).json(patient);
+    return res.status(201).json(patient);
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") {
+        return res.status(400).json({
+          message: "Invalid doctor_id reference",
+        });
+      }
+    }
+
     return next(error);
   }
 };
