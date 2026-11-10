@@ -2,6 +2,7 @@ import { Prisma } from "../../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import type { NextFunction, Request, Response } from "express";
 import { createPatientSchema } from "../validations/patient.validation.js";
+import { updatePatientSchema } from "../validations/patient.validation.js";
 import {
   buildPatientOrderBy,
   buildPatientWhere,
@@ -307,14 +308,33 @@ export const updatePatient = async (
   try {
     const id = Number(req.params.id);
 
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        message: "Patient ID must be a positive integer",
+      });
+    }
+
+    const validation = updatePatientSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        message: "Invalid patient data",
+        errors: validation.error.issues,
+      });
+    }
+
     const patient = await prisma.patients.update({
       where: {
         id: id,
       },
-      data: req.body,
+      data: Object.fromEntries(
+        Object.entries(validation.data).filter(
+          ([, value]) => value !== undefined,
+        ),
+      ) as Prisma.patientsUncheckedUpdateInput,
     });
 
-    res.status(200).json(patient);
+    return res.status(200).json(patient);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
@@ -322,7 +342,14 @@ export const updatePatient = async (
           message: "Patient not found",
         });
       }
+
+      if (error.code === "P2003") {
+        return res.status(400).json({
+          message: "Invalid doctor_id reference",
+        });
+      }
     }
+
     return next(error);
   }
 };
@@ -335,13 +362,19 @@ export const deletePatient = async (
   try {
     const id = Number(req.params.id);
 
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({
+        message: "Patient ID must be a positive integer",
+      });
+    }
+
     const patient = await prisma.patients.delete({
       where: {
         id: id,
       },
     });
 
-    res.status(200).json(patient);
+    return res.status(200).json(patient);
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
@@ -350,6 +383,7 @@ export const deletePatient = async (
         });
       }
     }
+
     return next(error);
   }
 };
