@@ -1,89 +1,93 @@
 # Clinic API v2
 
-A RESTful Clinic Patient Management API built with **TypeScript, Express 5, Prisma ORM, and PostgreSQL**.
+A RESTful Clinic Patient Management API built with **TypeScript, Express
+5, Prisma ORM, and PostgreSQL**.
 
-Augustine Grepo
-www.github.com/augustdigiroom
+Augustine Grepo www.github.com/augustdigiroom
 
-This project provides API endpoints for managing clinic patients, doctors, and appointments. It demonstrates backend development practices including database relationships, request validation, filtering, sorting, searching, pagination, error handling, and automated testing.
+Clinic API v2 provides endpoints for managing patients, doctors, and
+appointments. It demonstrates backend development practices including
+relational database management, request validation, filtering,
+searching, sorting, pagination, centralized error handling, and
+automated testing.
 
 ## Project Overview
 
-Clinic API v2 is designed to manage essential clinic operations through a structured REST API.
-
 The application supports three main resources:
 
-- **Patients** – Manage patient records and retrieve patient information.
-- **Doctors** – Manage doctor profiles and specializations.
-- **Appointments** – Create, retrieve, update, and delete patient appointments, including their associated doctors and patients.
+- **Patients** -- Manage patient records and retrieve patient
+  information.
+- **Doctors** -- Manage doctor profiles and medical specializations.
+- **Appointments** -- Create, retrieve, update, and delete
+  appointments associated with patients and doctors.
 
 ## Features
 
 ### 1. Patient Management
 
 - Create, retrieve, update, and delete patient records.
-- Retrieve patients using filtering options.
-- Search patient records by supported fields.
-- Sort patient records by selected fields.
-- Paginate patient results.
-- Validate query parameters and request data.
+- Filter patients by gender and age range.
+- Search by first name and last name.
+- Sort and paginate patient results.
+- Validate request data and query parameters.
 
 ### 2. Doctor Management
 
 - Create, retrieve, update, and delete doctor records.
 - Filter doctors by specialization.
-- Search doctor records.
-- Sort doctor results by selected fields.
-- Paginate doctor results.
-- Validate query parameters and request data.
+- Search by first name and last name.
+- Sort and paginate doctor results.
+- Validate request data and query parameters.
 
 ### 3. Appointment Management
 
 - Create, retrieve, update, and delete appointments.
 - Associate appointments with patients and doctors.
-- Retrieve appointment records with related patient and doctor information.
+- Retrieve appointments by patient or doctor.
 - Filter appointments by status, patient ID, doctor ID, and reason.
 - Sort and paginate appointment results.
-- Validate appointment data and handle invalid database references.
+- Handle invalid database references and record-not-found errors.
 
 ### 4. Data Validation
 
-- Use Zod to validate incoming request data.
+- Use Zod for request validation.
 - Validate query parameters and resource IDs.
 - Reject invalid input and unsupported fields.
-- Apply validation rules to appointment creation and updates.
+- Apply validation rules to resource creation and updates.
 
 ### 5. Database Management
 
-- Use Prisma ORM for database queries and operations.
+- Use Prisma ORM for database operations.
 - Use PostgreSQL for persistent data storage.
 - Define relationships between patients, doctors, and appointments.
-- Handle database constraints and record-not-found errors.
+- Handle database constraints and referential actions.
 
 ### 6. Automated Testing
 
 - Use Vitest as the testing framework.
 - Use Supertest for HTTP endpoint testing.
-- Maintain separate test files for application, patient, doctor, and appointment endpoints.
-- Verify successful requests, validation errors, and not-found responses.
+- Test API controllers and query-building functions.
+- Test successful requests, validation errors, and error handling.
+- Measure code coverage using Vitest's V8 coverage provider.
 
 ## Technologies Used
 
-| Technology                | Purpose                                       |
-| ------------------------- | --------------------------------------------- |
-| TypeScript                | Strongly typed application development        |
-| Node.js                   | JavaScript runtime                            |
-| Express 5                 | REST API framework                            |
-| PostgreSQL                | Relational database                           |
-| Prisma ORM                | Database access and schema management         |
-| Zod                       | Request and query validation                  |
-| Vitest                    | Automated testing framework                   |
-| Supertest                 | HTTP endpoint testing                         |
-| dotenv                    | Environment variable configuration            |
-| pg                        | PostgreSQL database driver                    |
-| Prisma PostgreSQL Adapter | Connects Prisma Client to PostgreSQL          |
-| Git                       | Version control                               |
-| GitHub                    | Source code hosting and project collaboration |
+Technology Purpose
+
+---
+
+TypeScript Strongly typed application development
+Node.js JavaScript runtime
+Express 5 REST API framework
+PostgreSQL Relational database
+Prisma ORM Database access and schema management
+Zod Request and query validation
+Vitest Automated testing
+Supertest HTTP endpoint testing
+dotenv Environment variable configuration
+pg PostgreSQL database driver
+Prisma PostgreSQL Adapter Prisma database connectivity
+Git and GitHub Version control and source code hosting
 
 ### Development Tools
 
@@ -96,69 +100,40 @@ The application supports three main resources:
 
 ```text
 clinic-api-v2/
-│
 ├── prisma/
 │   ├── migrations/
-│   │   ├── 0001_baseline/
-│   │   │   └── migration.sql
-│   │   ├── 20260908021833_create_appointments/
-│   │   │   └── migration.sql
-│   │   ├── migration_lock.toml
-│   │   └── schema.prisma
+│   └── schema.prisma
 │
 ├── src/
 │   ├── controllers/
-│   │   ├── appointment.controller.ts
-│   │   ├── doctor.controller.ts
-│   │   └── patient.controller.ts
-│   │
 │   ├── lib/
-│   │   └── prisma.ts
-│   │
+│   ├── middleware/
 │   ├── queries/
-│   │   ├── appointment.query.ts
-│   │   ├── doctor.query.ts
-│   │   └── patient.query.ts
-│   │
 │   ├── routes/
-│   │   ├── appointment.routes.ts
-│   │   ├── doctor.routes.ts
-│   │   └── patient.routes.ts
-│   │
+│   ├── validations/
 │   ├── app.ts
 │   └── server.ts
 │
 ├── tests/
 │   ├── app.test.ts
-│   ├── appointment.test.ts
+│   ├── patient.test.ts
 │   ├── doctor.test.ts
-│   └── patient.test.ts
+│   ├── appointment.test.ts
+│   ├── patient.query.test.ts
+│   ├── doctor.query.test.ts
+│   ├── appointment.query.test.ts
+│   ├── doctor.error.test.ts
+│   └── appointment.controller.test.ts
 │
 ├── generated/
-├── .env
 ├── .gitignore
 ├── package.json
 ├── package-lock.json
 ├── prisma.config.ts
 ├── tsconfig.json
+├── vitest.config.ts
 └── README.md
 ```
-
-### Folder Responsibilities
-
-| Folder/File        | Responsibility                                               |
-| ------------------ | ------------------------------------------------------------ |
-| `prisma/`          | Database schema and migration history                        |
-| `src/controllers/` | Handles API requests and responses                           |
-| `src/lib/`         | Shared application utilities and Prisma client               |
-| `src/queries/`     | Database filtering, sorting, searching, and pagination logic |
-| `src/routes/`      | Defines API endpoints and connects them to controllers       |
-| `src/app.ts`       | Configures the Express application                           |
-| `src/server.ts`    | Starts the HTTP server                                       |
-| `tests/`           | Contains automated API tests                                 |
-| `generated/`       | Generated Prisma Client                                      |
-| `prisma.config.ts` | Prisma configuration                                         |
-| `tsconfig.json`    | TypeScript compiler configuration                            |
 
 ## Database Models and Relationships
 
@@ -168,12 +143,14 @@ The project uses three PostgreSQL models managed through Prisma ORM.
 
 Stores doctor information.
 
-| Field            | Type   | Description                 |
-| ---------------- | ------ | --------------------------- |
-| `id`             | Int    | Primary key, auto-increment |
-| `first_name`     | String | Doctor's first name         |
-| `last_name`      | String | Doctor's last name          |
-| `specialization` | String | Medical specialization      |
+Field Type Description
+
+---
+
+`id` Int Primary key, auto-increment
+`first_name` String Doctor's first name
+`last_name` String Doctor's last name
+`specialization` String Medical specialization
 
 **Relationships:**
 
@@ -184,16 +161,18 @@ Stores doctor information.
 
 Stores patient information.
 
-| Field            | Type    | Description                    |
-| ---------------- | ------- | ------------------------------ |
-| `id`             | Int     | Primary key, auto-increment    |
-| `first_name`     | String  | Patient's first name           |
-| `last_name`      | String  | Patient's last name            |
-| `age`            | Int?    | Optional patient age           |
-| `gender`         | String? | Optional gender                |
-| `diagnosis`      | String? | Optional diagnosis             |
-| `contact_number` | String? | Optional unique contact number |
-| `doctor_id`      | Int?    | Optional reference to a doctor |
+Field Type Description
+
+---
+
+`id` Int Primary key, auto-increment
+`first_name` String Patient's first name
+`last_name` String Patient's last name
+`age` Int? Optional patient age
+`gender` String? Optional gender
+`diagnosis` String? Optional diagnosis
+`contact_number` String? Optional unique contact number
+`doctor_id` Int? Optional doctor reference
 
 **Relationships:**
 
@@ -205,27 +184,25 @@ Stores patient information.
 
 Stores patient appointment information.
 
-| Field              | Type     | Description                 |
-| ------------------ | -------- | --------------------------- |
-| `id`               | Int      | Primary key, auto-increment |
-| `patient_id`       | Int      | Required patient reference  |
-| `doctor_id`        | Int?     | Optional doctor reference   |
-| `appointment_date` | DateTime | Appointment date and time   |
-| `reason`           | String   | Appointment reason          |
-| `status`           | String   | Appointment status          |
+Field Type Description
+
+---
+
+`id` Int Primary key, auto-increment
+`patient_id` Int Required patient reference
+`doctor_id` Int? Optional doctor reference
+`appointment_date` DateTime Appointment date and time
+`reason` String Appointment reason
+`status` String Appointment status
 
 **Relationships and Referential Actions:**
 
 - Each appointment belongs to one patient.
 - An appointment can optionally be assigned to a doctor.
-- Deleting a patient automatically deletes their associated appointments (`onDelete: Cascade`).
-- Deleting a doctor sets the appointment's `doctor_id` to `NULL` (`onDelete: SetNull`).
-
-### Relationship Overview
-
-- **Doctors ↔ Patients:** A doctor can be associated with multiple patients; a patient can have an optional doctor.
-- **Patients → Appointments:** One-to-many relationship.
-- **Doctors → Appointments:** One-to-many relationship, with an optional doctor assignment.
+- Deleting a patient automatically deletes associated appointments
+  (`onDelete: Cascade`).
+- Deleting a doctor sets the appointment's `doctor_id` to `NULL`
+  (`onDelete: SetNull`).
 
 ## API Endpoints
 
@@ -233,108 +210,179 @@ All API routes are prefixed with `/api`.
 
 ### Patient Endpoints
 
-Base URL: `/api/patients`
+---
 
-| Method | Endpoint            | Description                                                              |
-| ------ | ------------------- | ------------------------------------------------------------------------ |
-| GET    | `/api/patients`     | Retrieve all patients with filtering, searching, sorting, and pagination |
-| GET    | `/api/patients/:id` | Retrieve a specific patient's profile                                    |
-| POST   | `/api/patients`     | Create a new patient                                                     |
-| PATCH  | `/api/patients/:id` | Update an existing patient                                               |
-| DELETE | `/api/patients/:id` | Delete a patient                                                         |
+Method Endpoint Description
+
+---
+
+GET `/api/patients` Retrieve patients with
+filtering, searching,
+sorting, and pagination
+
+GET `/api/patients/:id` Retrieve a specific
+patient
+
+POST `/api/patients` Create a patient
+
+PATCH `/api/patients/:id` Update a patient
+
+DELETE `/api/patients/:id` Delete a patient
+
+---
 
 ### Doctor Endpoints
 
-Base URL: `/api/doctors`
+---
 
-| Method | Endpoint           | Description                                                             |
-| ------ | ------------------ | ----------------------------------------------------------------------- |
-| GET    | `/api/doctors`     | Retrieve all doctors with filtering, searching, sorting, and pagination |
-| GET    | `/api/doctors/:id` | Retrieve a specific doctor's profile                                    |
-| POST   | `/api/doctors`     | Create a new doctor                                                     |
-| PATCH  | `/api/doctors/:id` | Update an existing doctor                                               |
-| DELETE | `/api/doctors/:id` | Delete a doctor                                                         |
+Method Endpoint Description
+
+---
+
+GET `/api/doctors` Retrieve doctors with
+filtering, searching,
+sorting, and pagination
+
+GET `/api/doctors/:id` Retrieve a specific
+doctor
+
+POST `/api/doctors` Create a doctor
+
+PATCH `/api/doctors/:id` Update a doctor
+
+DELETE `/api/doctors/:id` Delete a doctor
+
+---
 
 ### Appointment Endpoints
 
-Base URL: `/api/appointments`
+---
 
-| Method | Endpoint                               | Description                                                              |
-| ------ | -------------------------------------- | ------------------------------------------------------------------------ |
-| GET    | `/api/appointments`                    | Retrieve appointments with filtering, searching, sorting, and pagination |
-| GET    | `/api/appointments/:id`                | Retrieve a specific appointment                                          |
-| GET    | `/api/appointments/patient/:patientId` | Retrieve appointments associated with a patient                          |
-| GET    | `/api/appointments/doctor/:doctorId`   | Retrieve appointments associated with a doctor                           |
-| POST   | `/api/appointments`                    | Create a new appointment                                                 |
-| PATCH  | `/api/appointments/:id`                | Update an existing appointment                                           |
-| DELETE | `/api/appointments/:id`                | Delete an appointment                                                    |
+Method Endpoint Description
 
-### HTTP Methods
+---
 
-- **GET** – Retrieve resources.
-- **POST** – Create new resources.
-- **PATCH** – Update existing resources.
-- **DELETE** – Remove resources.
+GET `/api/appointments` Retrieve appointments
+with filtering,
+searching, sorting, and
+pagination
 
-## Query Parameters and API Usage Examples
+GET `/api/appointments/:id` Retrieve a specific
+appointment
 
-The API supports query-based filtering, searching, sorting, and pagination to make resource retrieval more flexible.
+GET `/api/appointments/patient/:patientId` Retrieve appointments
+by patient
 
-### 1. Patient Query Parameters
+GET `/api/appointments/doctor/:doctorId` Retrieve appointments
+by doctor
+
+POST `/api/appointments` Create an appointment
+
+PATCH `/api/appointments/:id` Update an appointment
+
+DELETE `/api/appointments/:id` Delete an appointment
+
+---
+
+## Query Parameters and API Usage
+
+The API supports filtering, searching, sorting, and pagination.
+
+### Patient Queries
 
 Endpoint: `GET /api/patients`
 
-| Parameter | Description                                                 | Example            |
-| --------- | ----------------------------------------------------------- | ------------------ |
-| `gender`  | Filter patients by gender                                   | `gender=Female`    |
-| `minAge`  | Filter by minimum age                                       | `minAge=18`        |
-| `maxAge`  | Filter by maximum age                                       | `maxAge=60`        |
-| `search`  | Search by first name or last name                           | `search=Santos`    |
-| `sortBy`  | Sort by `id`, `first_name`, `last_name`, `age`, or `gender` | `sortBy=last_name` |
-| `order`   | Sorting direction: `asc` or `desc`                          | `order=asc`        |
+Parameter Description Example
 
-**Example requests:**
+---
+
+`gender` Filter by gender `gender=Female`
+`minAge` Minimum age `minAge=18`
+`maxAge` Maximum age `maxAge=60`
+`search` Search first or last name `search=Santos`
+`sortBy` Sort by supported patient fields `sortBy=last_name`
+`order` Sort direction: `asc` or `desc` `order=asc`
+`page` Page number `page=2`
+`limit` Results per page `limit=10`
+
+Examples:
 
 ```http
 GET /api/patients?gender=Female
 GET /api/patients?minAge=18&maxAge=60
 GET /api/patients?search=Santos
 GET /api/patients?sortBy=last_name&order=asc
+GET /api/patients?page=2&limit=10
 ```
 
-### 2. Doctor Query Parameters
+### Doctor Queries
 
 Endpoint: `GET /api/doctors`
 
-| Parameter        | Description                                                  | Example                     |
-| ---------------- | ------------------------------------------------------------ | --------------------------- |
-| `specialization` | Filter by medical specialization                             | `specialization=Cardiology` |
-| `search`         | Search by first name or last name                            | `search=Garcia`             |
-| `sortBy`         | Sort by `id`, `first_name`, `last_name`, or `specialization` | `sortBy=last_name`          |
-| `order`          | Sorting direction: `asc` or `desc`                           | `order=desc`                |
+---
 
-**Example requests:**
+Parameter Description Example
+
+---
+
+`specialization` Filter by `specialization=Cardiology`
+specialization
+
+`search` Search first or last `search=Garcia`
+name
+
+`sortBy` Sort by supported `sortBy=last_name`
+doctor fields
+
+`order` Sort direction `order=desc`
+
+`page` Page number `page=2`
+
+`limit` Results per page `limit=10`
+
+---
+
+Examples:
 
 ```http
 GET /api/doctors?specialization=Cardiology
 GET /api/doctors?search=Garcia
 GET /api/doctors?sortBy=last_name&order=asc
+GET /api/doctors?page=2&limit=10
 ```
 
-### 3. Appointment Query Parameters
+### Appointment Queries
 
 Endpoint: `GET /api/appointments`
 
-| Parameter   | Description                                                              | Example                   |
-| ----------- | ------------------------------------------------------------------------ | ------------------------- |
-| `status`    | Filter by appointment status                                             | `status=SCHEDULED`        |
-| `patientId` | Filter by patient ID                                                     | `patientId=2`             |
-| `doctorId`  | Filter by doctor ID                                                      | `doctorId=3`              |
-| `reason`    | Search appointment reasons                                               | `reason=consultation`     |
-| `sortBy`    | Sort by `id`, `appointment_date`, `status`, `patient_id`, or `doctor_id` | `sortBy=appointment_date` |
-| `order`     | Sorting direction: `asc` or `desc`                                       | `order=desc`              |
+---
 
-**Example requests:**
+Parameter Description Example
+
+---
+
+`status` Filter by appointment `status=SCHEDULED`
+status
+
+`patientId` Filter by patient ID `patientId=2`
+
+`doctorId` Filter by doctor ID `doctorId=3`
+
+`reason` Search appointment `reason=consultation`
+reasons
+
+`sortBy` Sort by supported `sortBy=appointment_date`
+appointment fields
+
+`order` Sort direction `order=desc`
+
+`page` Page number `page=2`
+
+`limit` Results per page `limit=10`
+
+---
+
+Examples:
 
 ```http
 GET /api/appointments?status=SCHEDULED
@@ -342,44 +390,36 @@ GET /api/appointments?patientId=2
 GET /api/appointments?doctorId=3
 GET /api/appointments?reason=consultation
 GET /api/appointments?sortBy=appointment_date&order=desc
+GET /api/appointments?page=2&limit=10
 ```
 
 ## API Testing
 
-The project uses **Vitest** and **Supertest** for automated API testing to verify endpoint behavior, request validation, and database operations.
+The project uses **Vitest** and **Supertest** for automated testing.
 
-### Testing Tools
+### Testing Approach
 
-- **Vitest** – Test runner and assertion library.
-- **Supertest** – HTTP testing library for testing Express endpoints.
+The test suite includes:
 
-### Test Coverage
+- API integration tests for patient, doctor, and appointment
+  endpoints.
+- Controller unit tests using mocked database operations.
+- Query-builder unit tests for filtering and sorting logic.
+- Error-handling tests.
+- Validation and invalid-input tests.
 
-The automated test suite covers the following areas:
+### Running Tests
 
-| Test File             | Coverage                                              |
-| --------------------- | ----------------------------------------------------- |
-| `app.test.ts`         | Application-level checks                              |
-| `patient.test.ts`     | Patient API endpoints and operations                  |
-| `doctor.test.ts`      | Doctor API endpoints and operations                   |
-| `appointment.test.ts` | Appointment API endpoints, validation, and operations |
-
-### Areas Tested
-
-- API endpoint responses and HTTP status codes
-- Patient, doctor, and appointment CRUD operations
-- Filtering, searching, and sorting
-- Pagination and query parameter validation
-- Request body validation using Zod
-- Invalid resource IDs and database reference errors
-- Appointment relationships and database behavior
-
-### Running the Tests
-
-Run the complete automated test suite:
+Run the complete test suite:
 
 ```bash
 npm test
+```
+
+Run tests with code coverage:
+
+```bash
+npm run test:coverage
 ```
 
 Run TypeScript type checking:
@@ -388,108 +428,23 @@ Run TypeScript type checking:
 npx tsc --noEmit
 ```
 
-### Test Results
+### Latest Recorded Test Results
 
-**Latest recorded test execution:**
+Metric Result
 
-- Test files: 4 passed
-- Tests: 40 passed
-- TypeScript type checking: Passed
+---
 
-All 40 automated tests passed in the recorded test execution.
+Test files passed 9
+Tests passed 187
+Statement coverage 96.68%
+Branch coverage 89.96%
+Function coverage 100%
+Line coverage 96.68%
 
-## Installation and Setup
+All 187 tests passed in the latest recorded coverage run.
 
-Follow these steps to run Clinic API v2 locally.
-
-### Prerequisites
-
-Make sure you have the following installed:
-
-- Node.js
-- npm
-- PostgreSQL
-- Git
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/augustdigiroom/clinic-api-v2.git
-```
-
-Navigate into the project directory:
-
-```bash
-cd clinic-api-v2
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Configure Environment Variables
-
-Create a `.env` file in the project root directory.
-
-Add your PostgreSQL connection string:
-
-```env
-DATABASE_URL="postgresql://USERNAME:PASSWORD@localhost:5432/clinic_postgres?schema=public"
-```
-
-Replace `USERNAME` and `PASSWORD` with your local PostgreSQL credentials.
-
-**Important:** Never commit your `.env` file or expose database credentials in your GitHub repository.
-
-### 4. Configure the Database
-
-Create a PostgreSQL database named:
-
-```sql
-CREATE DATABASE clinic_postgres;
-```
-
-Make sure your PostgreSQL server is running and your `DATABASE_URL` points to the correct database.
-
-### 5. Run Prisma Migrations
-
-Apply the existing database migrations:
-
-```bash
-npx prisma migrate deploy
-```
-
-### 6. Generate Prisma Client
-
-```bash
-npx prisma generate
-```
-
-### 7. Start the Development Server
-
-```bash
-npm run dev
-```
-
-The API will be available at:
-
-```text
-http://localhost:3000
-```
-
-### 8. Run Automated Tests
-
-```bash
-npm test
-```
-
-### 9. Run TypeScript Type Checking
-
-```bash
-npx tsc --noEmit
-```
+_Coverage figures represent the latest recorded local test execution and
+may change as the project evolves._
 
 ## Installation and Setup
 
@@ -517,7 +472,7 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the project root directory.
+Create a `.env` file in the project root.
 
 Add your PostgreSQL connection string:
 
@@ -527,15 +482,21 @@ DATABASE_URL="postgresql://USERNAME:PASSWORD@localhost:5432/clinic_postgres?sche
 
 Replace `USERNAME` and `PASSWORD` with your PostgreSQL credentials.
 
-**Important:** Never commit your `.env` file or expose database credentials in your repository.
+**Important:** Never commit your `.env` file or expose database
+credentials in your GitHub repository.
 
 ### 4. Create the PostgreSQL Database
 
-Create a database named `clinic_postgres` using PostgreSQL or your preferred database management tool.
+Create a database named:
+
+```sql
+CREATE DATABASE clinic_postgres;
+```
+
+Make sure your PostgreSQL server is running and your `DATABASE_URL`
+points to the correct database.
 
 ### 5. Apply Database Migrations
-
-Run the existing Prisma migrations:
 
 ```bash
 npx prisma migrate deploy
@@ -553,10 +514,10 @@ npx prisma generate
 npm run dev
 ```
 
-The API will be available at:
+The API server currently runs on:
 
 ```text
-http://localhost:3000
+http://localhost:5000
 ```
 
 ### 8. Run Automated Tests
@@ -565,26 +526,36 @@ http://localhost:3000
 npm test
 ```
 
-### 9. Run TypeScript Type Checking
+### 9. Run Tests with Coverage
+
+```bash
+npm run test:coverage
+```
+
+### 10. Run TypeScript Type Checking
 
 ```bash
 npx tsc --noEmit
 ```
 
-### Environment Configuration
+## Future Improvements
 
-Prisma loads environment variables through `dotenv/config` in `prisma.config.ts`.
+Potential areas for future development include:
 
-The `DATABASE_URL` environment variable is used to establish the PostgreSQL database connection.
+- API documentation with Swagger or OpenAPI.
+- Authentication and role-based authorization.
+- Production deployment.
+- Additional security and performance improvements.
+- Integration with AI-powered healthcare applications.
 
 ## Copyright and Ownership
 
-Copyright © 2026 Augustine Grepo. All rights reserved.
+Copyright © Augustine Grepo 2026. All rights reserved.
+
+GitHub: https://github.com/augustdigiroom/clinic-api-v2
 
 www.github.com/augustdigiroom
 
-This project is an original software development portfolio project. The original source code, documentation, and project materials are protected by applicable copyright laws.
-
-Viewing this repository does not grant permission to copy, reproduce, redistribute, modify, or commercially use its original work without prior written permission from the copyright owner, except where permitted by applicable law or third-party licenses.
-
-Third-party libraries, frameworks, and dependencies remain subject to their respective licenses.
+This project is a software development portfolio project. Third-party
+libraries, frameworks, and dependencies remain subject to their
+respective licenses.
