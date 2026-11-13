@@ -1,7 +1,16 @@
+
+# Dependencies
 node_modules/
 
-# Keep environment variables out of version control
-.env
+# Build output
+dist/
 
-# Prisma generated client
+# Environment variables and secrets
+.env
+.env.*
+
+# Allow an example environment file
+!.env.example
+
+# Generated Prisma Client
 generated/prisma/
